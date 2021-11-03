@@ -14,7 +14,7 @@ cmd_download_cc_test_reporter: &cmd_download_cc_test_reporter
 
 cmd_attach_workspace: &cmd_attach_workspace
   attach_workspace:
-    at: ~/musings
+    at: ~/mobilities
 
 cmd_attach_cc_workspace: &cmd_attach_cc_workspace
   attach_workspace:
@@ -97,19 +97,12 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: false
       - run:
-          name: Build and Scan Docker image
+          name: Build Docker image
           command: |
             echo 'export PATH=~$PATH:~/.local/bin' >> $BASH_ENV
             echo 'export TAG=${CIRCLE_SHA1}' >> $BASH_ENV
             echo 'export IMAGE_NAME=orb-snyk' >> $BASH_ENV && source $BASH_ENV
             docker build -t $DOCKER_LOGIN/$IMAGE_NAME -t $DOCKER_LOGIN/$IMAGE_NAME:$TAG .
-      - snyk/scan:
-          fail-on-issues: true
-          monitor-on-build: true
-          docker-image-name: $DOCKER_LOGIN/$IMAGE_NAME:$TAG
-          target-file: "Dockerfile"
-          project: ${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}-app
-          organization: ${SNYK_CICD_ORGANIZATION}
       - run:
           name: Push Docker image to Docker Hub
           command: |
